@@ -165,7 +165,7 @@
           <q-card-section>
             <div class="row no-wrap items-center">
               <div class="col">
-                <q-input color="deep-purple" v-model="id" label="Album Id" required />
+                <q-input type="number" color="deep-purple" v-model="id" label="Album Id" required />
               </div>
             </div>
             <div class="row no-wrap items-center">
@@ -201,7 +201,7 @@ export default {
       filter: '',
       title: '',
       imgsrc: '',
-      id: '',
+      id: null,
       loading: false,
       selected: [],
       preview : false,
@@ -280,7 +280,7 @@ export default {
       this.newAlbum = true
     },
 
-    //Change Album dialog method
+    //Change Album input ref 
     changeAlbum (){
       this.$refs.changeimage.click()
     },
@@ -295,28 +295,29 @@ export default {
     },
 
     createNew(title, id){
-      console.log(id)
+      
+      this.newAlbumId = String(id)
+      console.log(this.newAlbumId)
       console.log(title)
       console.log(this.tmppath)
 
       //assing unique id for the new album entry
       this.maxid = Math.max.apply(Math, this.data.map(function(o) { return o.id; }))
       this.maxid = this.maxid +1
-      console.log(this.maxid)
       
       //create a data_array to append 
-      const formdata = [{
-          "albumId": id,
+      const formdata = {
+          "albumId": this.newAlbumId,
           "id": this.maxid,
           "title": title,
           "url": this.tmppath,
           "thumbnailUrl": this.tmppath
-      }]
+      }
 
       // push new album data to the album list array
       if(this.data.push(formdata)){
         //success notification
-        console.log(this.data)
+        console.log(this.data) // view pushed data in the console
 
         this.$q.notify({
           message: 'New Album successfully',
