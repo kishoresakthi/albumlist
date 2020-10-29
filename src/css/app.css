@@ -1,0 +1,9 @@
+/* app global css */
+.my-card.q-card {
+    width: 800px;
+    height: 600px
+}
+div#albumbanner {
+    height: 300px;
+}
+  
