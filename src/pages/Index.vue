@@ -158,33 +158,40 @@
           <q-img  v-if="!tmppath" id="albumbanner" src="../assets/dummy.jpg">
               <div class="absolute-bottom-right text-subtitle2">
                 <input ref="changeimage" type="file"  @change="onFileChange" hidden/>
-                  <div @click="changeAlbum">Add image </div>
+                  <div @click="changeAlbum">Add image</div>
               </div>
           </q-img> 
           
           
             <img v-if="tmppath" :src="tmppath" />
          
-
+          <q-form
+              @submit="createNew"
+            >
           <q-card-section>
             <div class="row no-wrap items-center">
               <div class="col">
-                <q-input type="number" color="deep-purple" v-model="id" label="Album Id" required />
-              </div>
-            </div>
-            <div class="row no-wrap items-center">
-              <div class="col">
-                <q-input color="deep-purple" v-model="title" label="Title" required />
+                <q-input 
+                color="deep-purple" 
+                v-model="title" 
+                label="Title" 
+                :rules="[
+                          val => !!val || 'Field is required',
+                          val => val.length >= 8 || 'Minimum 8 characters',
+                          val => val.length < 128 || 'Maximum 128 characters' 
+                      ]" 
+              />
               </div>
             </div>
           </q-card-section>
           <q-card-section>
             <div class="row no-wrap items-right">
               <div class="col">
-                <q-btn color="deep-purple" @click="createNew(title, id)" label="Create" />
+                <q-btn color="deep-purple"  type="submit" label="Create" />
               </div>
             </div>
           </q-card-section>
+          </q-form>
           
         </q-card>
       </q-dialog>
@@ -299,19 +306,21 @@ export default {
         console.log(this.tmppath)
     },
 
-    createNew(title, id){
-      
-      this.newAlbumId = String(id)
+    createNew(){
 
-      //assing unique id for the new album entry
+      //assign unique id for the new album entry
       this.maxid = Math.max.apply(Math, this.data.map(function(o) { return o.id; }))
       this.maxid = this.maxid +1
+
+      //assign new id for the album
+      this.albumId = Math.max.apply(Math, this.data.map(function(o) { return o.albumId; }))
+      this.albumId = this.albumId +1
       
       //create a data_array to append 
       const formdata = {
-          "albumId": this.newAlbumId,
+          "albumId": this.albumId,
           "id": this.maxid,
-          "title": title,
+          "title": this.title,
           "url": this.tmppath,
           "thumbnailUrl": this.tmppath
       }
