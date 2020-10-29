@@ -317,7 +317,7 @@ export default {
       if(this.data.push(formdata)){
         //success notification
         console.log(this.data)
-        
+
         this.$q.notify({
           message: 'New Album successfully',
           color: 'secondary',
@@ -339,7 +339,7 @@ export default {
       }
 
       //push new album data to the server
-      // this.$axios.post('usr_f/send_msg', 
+      // this.$axios.post('your backend URL', 
       // { 
       //      "albumId": id,
       //     "id": this.maxid,
