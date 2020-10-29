@@ -155,12 +155,16 @@
             <q-btn icon="close" flat round dense v-close-popup />
           </q-card-section>
           
-          <q-img id="albumbanner" src="../assets/dummy.jpg">
+          <q-img  v-if="!tmppath" id="albumbanner" src="../assets/dummy.jpg">
               <div class="absolute-bottom-right text-subtitle2">
                 <input ref="changeimage" type="file"  @change="onFileChange" hidden/>
                   <div @click="changeAlbum">Add image </div>
               </div>
           </q-img> 
+          
+          
+            <img v-if="tmppath" :src="tmppath" />
+         
 
           <q-card-section>
             <div class="row no-wrap items-center">
@@ -210,6 +214,7 @@ export default {
       showbin: false,
       NewAlbumData : [],
       albumImage: '',
+      tmppath: '',
       columns: [
         { name: 'thumbnailUrl', align: 'center', label: 'Album', field: 'thumbnailUrl'},
         { name: 'title', align: 'center', label: 'Title', field: 'title', sortable: true},
@@ -288,18 +293,15 @@ export default {
     //Get file details on select
     onFileChange(event) {
         //get the file and extract its url
-        this.file = this.$refs.changeimage.files[0];
+        this.file = event.target.files[0];
         this.tmppath = URL.createObjectURL(this.file);
-        this.tmppath = this.tmppath.replace('blob:',''); //remove blob: string form URL
+        //this.tmppath = this.tmppath.replace('blob:',''); //remove blob: string form URL
         console.log(this.tmppath)
     },
 
     createNew(title, id){
       
       this.newAlbumId = String(id)
-      console.log(this.newAlbumId)
-      console.log(title)
-      console.log(this.tmppath)
 
       //assing unique id for the new album entry
       this.maxid = Math.max.apply(Math, this.data.map(function(o) { return o.id; }))
