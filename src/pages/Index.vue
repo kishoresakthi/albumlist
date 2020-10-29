@@ -154,25 +154,30 @@
             <q-space />
             <q-btn icon="close" flat round dense v-close-popup />
           </q-card-section>
-
+          
           <q-img id="albumbanner" src="../assets/dummy.jpg">
               <div class="absolute-bottom-right text-subtitle2">
-                <input ref="changeimage" type="file" hidden/>
-                  <div @click="changeAlbum">Change image </div>
+                <input ref="changeimage" type="file"  @change="onFileChange" hidden/>
+                  <div @click="changeAlbum">Add image </div>
               </div>
           </q-img> 
 
           <q-card-section>
             <div class="row no-wrap items-center">
               <div class="col">
-                <q-input color="deep-purple" v-model="title" label="Title" />
+                <q-input color="deep-purple" v-model="id" label="Album Id" required />
+              </div>
+            </div>
+            <div class="row no-wrap items-center">
+              <div class="col">
+                <q-input color="deep-purple" v-model="title" label="Title" required />
               </div>
             </div>
           </q-card-section>
           <q-card-section>
             <div class="row no-wrap items-right">
               <div class="col">
-                <q-btn color="deep-purple" label="Save" />
+                <q-btn color="deep-purple" @click="createNew(title, id)" label="Create" />
               </div>
             </div>
           </q-card-section>
@@ -203,6 +208,7 @@ export default {
       edit : false,
       newAlbum : false,
       showbin: false,
+      NewAlbumData : [],
       albumImage: '',
       columns: [
         { name: 'thumbnailUrl', align: 'center', label: 'Album', field: 'thumbnailUrl'},
@@ -277,23 +283,113 @@ export default {
     //Change Album dialog method
     changeAlbum (){
       this.$refs.changeimage.click()
+    },
+    
+    //Get file details on select
+    onFileChange(event) {
+        //get the file and extract its url
+        this.file = this.$refs.changeimage.files[0];
+        this.tmppath = URL.createObjectURL(this.file);
+        this.tmppath = this.tmppath.replace('blob:',''); //remove blob: string form URL
+        console.log(this.tmppath)
+    },
+
+    createNew(title, id){
+      console.log(id)
+      console.log(title)
+      console.log(this.tmppath)
+
+      //assing unique id for the new album entry
+      this.maxid = Math.max.apply(Math, this.data.map(function(o) { return o.id; }))
+      this.maxid = this.maxid +1
+      console.log(this.maxid)
+      
+      //create a data_array to append 
+      const formdata = [{
+          "albumId": id,
+          "id": this.maxid,
+          "title": title,
+          "url": this.tmppath,
+          "thumbnailUrl": this.tmppath
+      }]
+
+      // push new album data to the album list array
+      if(this.data.push(formdata)){
+        //success notification
+        console.log(this.data)
+        
+        this.$q.notify({
+          message: 'New Album successfully',
+          color: 'secondary',
+          icon: 'done'
+        })
+
+        //clear all values and close dialog
+        this.title = '',
+        this.id = '',
+        this.tmppath = ''
+        this.newAlbum = false
+      }
+      else{
+        this.$q.notify({
+          message: 'New Album successfully',
+          color: 'negative',
+          icon: 'error_outline'
+        })
+      }
+
+      //push new album data to the server
+      // this.$axios.post('usr_f/send_msg', 
+      // { 
+      //      "albumId": id,
+      //     "id": this.maxid,
+      //     "title": title,
+      //     "url": this.tmppath,
+      //     "thumbnailUrl": this.tmppath
+
+      // },
+      // { 
+      //     headers : { Authorization : "Bearer "+ this.token}
+      // }
+      // )
+      // .then((response) => {
+      //     if(response.data.status == 1)
+      //     { 
+
+
+      //     }
+      //     else if (response.data.status == 0) 
+      //     {
+      //         this.$q.loading.hide()
+
+      //         this.$q.notify({
+      //         color: 'red-5',
+      //         position: 'top',
+      //         textColor: 'white',
+      //         icon: 'warning',
+      //         message: response.data.message
+      //         })
+
+      //     }
+      // })
     }
+
   },
 
   mounted : function () {
-        this.$q.loading.show() //show page loader
+    this.$q.loading.show() //show page loader
 
-        //get album list from server
-        this.$axios.get('https://jsonplaceholder.typicode.com/photos', 
-          { 
-            headers : { Authorization : "Bearer "+ this.token}
-          }
-        )
-        .then((response) => {
+    //get album list from server
+    this.$axios.get('https://jsonplaceholder.typicode.com/photos', 
+      { 
+        headers : { Authorization : "Bearer "+ this.token}
+      }
+    )
+    .then((response) => {
 
-          this.$q.loading.hide() //hide page loader
-          this.data = response.data
-        })
+      this.$q.loading.hide() //hide page loader
+      this.data = response.data
+    })
     
   },
 }
